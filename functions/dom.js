@@ -8,7 +8,9 @@ export function createElement(tagName, attributes = {}, text = ''){
   const element = document.createElement(tagName);
   element.innerText = text;
   for(let [attribute, value] of Object.entries(attributes)){
-    element.setAttribute(attribute, value);
+    if(value !== null){
+      element.setAttribute(attribute, value);
+    }
   }
   return element;
 }
