@@ -52,14 +52,18 @@ export class TodoList {
       this.#listElement.append(t.element);
     }
 
-    element.querySelector('form')?.addEventListener('submit', e => this.onSubmit(e))
+    element.querySelector('form')?.addEventListener('submit', e => this.#onSubmit(e))
+    element.querySelectorAll('.btn-group button').forEach(button => {
+      // @ts-ignore
+      button.addEventListener('click', e => this.#toggleFilter(e));
+    });
   }
 
   /**
    * 
    * @param {SubmitEvent} e 
    */
-  onSubmit(e){
+  #onSubmit(e){
     const form = e.currentTarget;
     e.preventDefault();
     // @ts-ignore
@@ -80,6 +84,32 @@ export class TodoList {
     // @ts-ignore
     form.reset();
   }
+
+  /**
+   * 
+   * @param {PointerEvent} e 
+   */
+  #toggleFilter(e){
+    e.preventDefault();
+    // @ts-ignore
+    const filter = e.currentTarget.getAttribute('data-filter');
+    // @ts-ignore
+    e.currentTarget.parentElement.querySelector('.active').classList.remove('active');
+    // @ts-ignore
+    e.currentTarget.classList.add('active');
+
+    if(filter === 'todo'){
+      this.#listElement.classList.add('hide-completed');
+      this.#listElement.classList.remove('hide-todo');
+    }else if(filter === 'done'){
+      this.#listElement.classList.add('hide-todo');
+      this.#listElement.classList.remove('hide-completed');
+    }else{
+      this.#listElement.classList.remove('hide-todo');
+      this.#listElement.classList.remove('hide-completed');
+    }
+    
+  }
 }
 
 class TodoListItem {
@@ -94,6 +124,8 @@ class TodoListItem {
     const li = createElement('li', {
       class: 'todo list-group-item d-flex align-items-center'
     });
+
+    this.#element = li;
 
     const checkbox = createElement('input', {
       type: 'checkbox',
@@ -115,10 +147,14 @@ class TodoListItem {
     li.append(checkbox);
     li.append(label);
     li.append(button);
+    // @ts-ignore
+    this.toggle(checkbox);
 
     button.addEventListener('click', e => this.remove(e));
 
-    this.#element = li;
+    // @ts-ignore
+    checkbox.addEventListener('change', e => this.toggle(e.currentTarget));
+
   }
 
   /**
@@ -136,5 +172,17 @@ class TodoListItem {
   remove(e){
     e.preventDefault();
     this.#element.remove();
+  }
+
+  /**
+   * change l'etat (a faire / faire) de la tache
+   * @param {HTMLInputElement} checkbox 
+   */
+  toggle(checkbox){
+    if(checkbox.checked){
+      this.#element.classList.add('is-completed');
+    }else{
+      this.#element.classList.remove('is-completed');
+    }
   }
 }
