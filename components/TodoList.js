@@ -50,12 +50,12 @@ export class TodoList {
 
     this.#listElement.addEventListener('delete', ({detail: todo}) => {
       this.#todos = this.#todos.filter(t => t !== todo);
-      console.log(this.#todos);
+      this.#onUpdate();
     })
 
     this.#listElement.addEventListener('toggle', ({detail: todo}) => {
       todo.completed = !todo.completed;
-      console.log(this.#todos);
+      this.#onUpdate();
     })
   }
 
@@ -81,8 +81,15 @@ export class TodoList {
     // @ts-ignore
     const item = new TodoListItem(todo);
     this.#listElement.prepend(item.element);
+
+    this.#todos.push(todo);
+    this.#onUpdate();
     // @ts-ignore
     form.reset();
+  }
+
+  #onUpdate(){
+    localStorage.setItem('todos', JSON.stringify(this.#todos));
   }
 
   /**
