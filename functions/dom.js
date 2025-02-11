@@ -14,3 +14,13 @@ export function createElement(tagName, attributes = {}, text = ''){
   }
   return element;
 }
+
+/**
+ * 
+ * @param {string} id 
+ * @return {DocumentFragment}
+ */
+export function cloneTemplate(id) {
+  // @ts-ignore
+  return document.getElementById(id).content.cloneNode(true);
+}
