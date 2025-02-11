@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { cloneTemplate, createElement } from "../functions/dom.js";
 
 /**
@@ -46,6 +47,16 @@ export class TodoList {
       // @ts-ignore
       button.addEventListener('click', e => this.#toggleFilter(e));
     });
+
+    this.#listElement.addEventListener('delete', ({detail: todo}) => {
+      this.#todos = this.#todos.filter(t => t !== todo);
+      console.log(this.#todos);
+    })
+
+    this.#listElement.addEventListener('toggle', ({detail: todo}) => {
+      todo.completed = !todo.completed;
+      console.log(this.#todos);
+    })
   }
 
   /**
@@ -104,11 +115,13 @@ export class TodoList {
 class TodoListItem {
 
   #element;
+  #todo;
   /**
    * 
    * @param {Todo} todo 
    */
   constructor(todo) {
+    this.#todo = todo;
     const id = `todo-${todo.id}`;
     const li = cloneTemplate('todolist-item').firstElementChild;
     this.#element = li;
@@ -125,7 +138,6 @@ class TodoListItem {
     label.innerText = todo.title;
 
     const button = li?.querySelector('button');
-    console.log(button);
     
 
     // @ts-ignore
@@ -135,6 +147,9 @@ class TodoListItem {
 
     // @ts-ignore
     checkbox.addEventListener('change', e => this.toggle(e.currentTarget));
+
+    this.#element?.addEventListener('delete', e => {
+    });
 
   }
 
@@ -153,6 +168,15 @@ class TodoListItem {
    */
   remove(e){
     e.preventDefault();
+    const event = new CustomEvent('delete',{
+      detail: this.#todo,
+      bubbles: true,
+      cancelable: true
+    });
+    this.#element?.dispatchEvent(event);
+    if(event.defaultPrevented){
+      return;
+    }
     this.#element?.remove();
   }
 
@@ -166,5 +190,10 @@ class TodoListItem {
     }else{
       this.#element?.classList.remove('is-completed');
     }
+    const event = new CustomEvent('toggle',{
+      detail: this.#todo,
+      bubbles: true,
+    });
+    this.#element.dispatchEvent(event);
   }
 }
